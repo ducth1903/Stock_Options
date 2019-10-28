@@ -2,3 +2,8 @@
 
 To start: **streamlit run main.py**
 
+To-do:
+
+- [ ] Integrate Robinhood API
+- [ ] 
+
