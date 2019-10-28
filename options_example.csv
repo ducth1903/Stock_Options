@@ -1,0 +1,13 @@
+Strategy,Option_type,Strike,Cost,Name
+0,LongCall,20,40,
+0,ShortCall,30,30,Bull Spread
+1,LongPut,30,40,
+1,ShortPut,20,30,Bear Spread
+2,LongCall,20,30,
+2,LongCall,40,30,
+2,ShortCall,30,40,
+2,ShortCall,30,40,Butterfly Spread
+3,LongCall,30,30,
+3,LongPut,30,50,Straddle
+4,LongCall,40,30,
+4,LongPut,20,30,Strangle

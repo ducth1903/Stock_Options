@@ -1,0 +1,5 @@
+Strategy,Option_type,Strike,Cost,Name
+0,LongCall,33.5,1.2,
+0,ShortCall,34.5,0.82,
+1,LongCall,33.5,1.2,
+1,LongPut,31.5,0.99,
