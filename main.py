@@ -193,8 +193,8 @@ if __name__ == "__main__":
     csv_path = r"BYND.csv"
     read_strategy_from_csv(csv_path)
 
-    # my_trader = Robinhood()
-    # logged_in = my_trader.login(username=os.getenv("EMAIL"), password=os.getenv("PASSWORD"), qr_code=os.getenv("QR"))
-    # print(logged_in)
-    # quote_info = my_trader.quote_data("AMD")
-    # print(quote_info)
+    stock_ticker = "NVDA"
+    my_trader = Robinhood()
+    logged_in = my_trader.login(username=os.getenv("EMAIL"), password=os.getenv("PASSWORD"), qr_code=os.getenv("QR"))
+    option = my_trader.get_options(stock_ticker, expiration_dates="2019-11-08", option_type="call")
+    print(my_trader.get_fundamentals(stock_ticker))
