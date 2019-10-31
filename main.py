@@ -4,6 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 # import seaborn as sns
 from itertools import count
+from Robinhood import Robinhood
+import os
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
 
 st.title("Stock Option Strategies")
 
@@ -186,5 +190,11 @@ def read_strategy_from_csv(csv_path):
 
 if __name__ == "__main__":
     plot_individual = True
-    csv_path = r"options_template.csv"
+    csv_path = r"BYND.csv"
     read_strategy_from_csv(csv_path)
+
+    # my_trader = Robinhood()
+    # logged_in = my_trader.login(username=os.getenv("EMAIL"), password=os.getenv("PASSWORD"), qr_code=os.getenv("QR"))
+    # print(logged_in)
+    # quote_info = my_trader.quote_data("AMD")
+    # print(quote_info)
