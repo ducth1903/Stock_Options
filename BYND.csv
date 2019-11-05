@@ -3,3 +3,7 @@ Strategy,Option_type,Strike,Cost,Name
 0,LongPut,91,1.42,Strangle
 1,LongPut,102,6.85,
 1,ShortPut,100,6.08,Bear Spread
+2,LongCall,117,3.91,
+2,ShortCall,124,2.36,
+2,LongPut,91,3.91,
+2,ShortPut,83,2.36,Bull+Bear

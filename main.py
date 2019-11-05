@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 # import seaborn as sns
+import plotly.graph_objects as go
 from itertools import count
 from Robinhood import Robinhood
 import os
@@ -21,11 +22,20 @@ class BaseOptions:
 
     def draw_payoff(self):
         """
-        Draw Payoff line for Long Call option
+        Draw Payoff line for option using matplotlib
         """
         if len(self.payoff)==0:
             raise Exception("Payoff and Profit are not calculated for {}".format(self.__repr__()))
         plt.plot(self.stock_xrange, self.payoff, '--', label="Payoff - {}".format(self.__repr__()))
+
+    def draw_payoff_plotly(self, fig_obj):
+        """
+        Draw Payoff line for option using plotly
+        """
+        if len(self.payoff)==0:
+            raise Exception("Payoff and Profit are not calculated for {}".format(self.__repr__()))
+        fig_obj.add_trace(go.Scatter(x=self.stock_xrange, y=self.payoff, name="Payoff - {}".format(self.__repr__()), \
+            line=dict(color="firebrick", dash="dash"), opacity=0.6))
 
 ###############################################################################################################
 class LongCall(BaseOptions):
@@ -123,6 +133,30 @@ class StrategyOptions():
         # plt.show()
         st.pyplot()
 
+    def draw_payoff_plotly(self, plot_individual=False, title=None):
+        if not title: title = "Payoff & Profit"
+
+        fig = go.Figure()
+        for op in self.list_options:
+            op.calc_payoff_profit(self.max_strike_price)
+            if len(self.stock_xrange)==0: self.stock_xrange = op.stock_xrange
+
+            if plot_individual: op.draw_payoff_plotly(fig)
+            self.list_payoff.append(op.payoff)
+            self.list_profit.append(op.profit)
+        
+        self.total_payoff = np.sum(np.asarray(self.list_payoff), axis=0)
+        self.total_profit = np.sum(np.asarray(self.list_profit), axis=0)
+        self.max_profit, self.min_profit = max(self.total_profit), min(self.total_profit)
+        
+        fig.add_trace(go.Scatter(x=self.stock_xrange, y=self.total_payoff, name="Total Payoff", \
+            line=dict(color='green', dash="dashdot", width=3)))
+        fig.add_trace(go.Scatter(x=self.stock_xrange, y=self.total_profit, name="Total Profit", \
+            line=dict(color='green', width=3)))
+
+        fig.update_layout(title=title, xaxis_title="Market price ($)", yaxis_title="Value ($)")
+        st.plotly_chart(fig)
+
     def calc_break_even(self):
         """
         Calculate zero-crossing points for break-even
@@ -161,15 +195,15 @@ class StrategyOptions():
         """
         option_json = {"Option": self.__repr__(),
             "Break-even": self.break_even.tolist(),
-            "Max profit": self.max_profit.tolist(),
-            "Max loss": self.min_profit.tolist()}
+            "Max profit": (self.max_profit*100).tolist(),
+            "Max loss": (self.min_profit*100).tolist()}
         st.json(option_json)
 
     def __repr__(self):
         return f"<StrategyOptions: {self.id, self.list_options}>"
 
 ###############################################################################################################
-def read_strategy_from_csv(csv_path):
+def read_strategy_from_csv(csv_path, plot_individual):
     df = pd.read_csv(csv_path)
     for _, curr_strategy_df in df.groupby(['Strategy']):
         curr_list_options = []
@@ -184,17 +218,18 @@ def read_strategy_from_csv(csv_path):
                 curr_title = row["Name"]
         
         strategy = StrategyOptions(curr_list_options)
-        strategy.draw_payoff(plot_individual=plot_individual, title=curr_title)
+        # strategy.draw_payoff(plot_individual=plot_individual, title=curr_title)
+        strategy.draw_payoff_plotly(plot_individual=plot_individual, title=curr_title)
         strategy.calc_break_even()
         strategy.display_option_result()
 
 if __name__ == "__main__":
     plot_individual = True
-    csv_path = r"BYND.csv"
-    read_strategy_from_csv(csv_path)
+    csv_path = r"BYND.csv" 
+    read_strategy_from_csv(csv_path, plot_individual)
 
-    stock_ticker = "NVDA"
-    my_trader = Robinhood()
-    logged_in = my_trader.login(username=os.getenv("EMAIL"), password=os.getenv("PASSWORD"), qr_code=os.getenv("QR"))
-    option = my_trader.get_options(stock_ticker, expiration_dates="2019-11-08", option_type="call")
-    print(my_trader.get_fundamentals(stock_ticker))
+    # stock_ticker = "NVDA"
+    # my_trader = Robinhood()
+    # logged_in = my_trader.login(username=os.getenv("EMAIL"), password=os.getenv("PASSWORD"), qr_code=os.getenv("QR"))
+    # option = my_trader.get_options(stock_ticker, expiration_dates="2019-11-08", option_type="call")
+    # print(my_trader.get_fundamentals(stock_ticker))
